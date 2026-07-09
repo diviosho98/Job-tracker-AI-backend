@@ -3,15 +3,12 @@ package org.example.jobtrackerai.ApplicationService.impl;
 import org.example.jobtrackerai.ApplicationService.ApplicationService;
 import org.example.jobtrackerai.DTO.ApplicationResponseDTO;
 import org.example.jobtrackerai.DTO.CreateApplicationDTO;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 public class ApplicationServiceimpl implements ApplicationService {
-    public ApplicationServiceimpl() {
-        super();
-    }
 
     @Override
     public List<ApplicationResponseDTO> getAllApplication() {
