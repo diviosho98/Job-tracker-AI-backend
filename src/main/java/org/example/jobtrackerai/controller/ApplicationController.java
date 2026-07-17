@@ -19,12 +19,12 @@ public class ApplicationController {
     }
      @GetMapping("/applications")
      public List<ApplicationResponseDTO> getApplications() {
-         return applicationService.getAllApplication();
+         return applicationService.getApplications();
      }
 
      @GetMapping("/applications/{id}")
-     public List<ApplicationResponseDTO> getApplicationById(@PathVariable Long id) {
-        return applicationService.getApplicationByUserId(id);
+     public ApplicationResponseDTO getApplicationById(@PathVariable Long id) {
+        return applicationService.getApplicationById(id);
      }
 
      @PostMapping("/applications")

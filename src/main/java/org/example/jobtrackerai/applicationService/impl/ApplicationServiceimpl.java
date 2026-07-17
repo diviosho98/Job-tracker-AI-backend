@@ -19,8 +19,8 @@ public class ApplicationServiceimpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationResponseDTO> getAllApplication() {
-        List<Application> response = applicationRepository.findAll();
+    public List<ApplicationResponseDTO> getApplications() {
+        List<Application> response = applicationRepository.findByUserId(1L);
         List<ApplicationResponseDTO> applicationResponseDTOS = new ArrayList<>(response.size());
         for (Application application : response) {
             applicationResponseDTOS.add(ApplicationResponseDTO.convert(application));
@@ -42,13 +42,11 @@ public class ApplicationServiceimpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationResponseDTO> getApplicationByUserId(Long id) {
-        List<Application> response  = applicationRepository.findByUserId(id);
-        List<ApplicationResponseDTO> applicationResponseDTOS = new ArrayList<>(response.size());
-        for (Application application : response) {
-            applicationResponseDTOS.add(ApplicationResponseDTO.convert(application));
-        }
-        return applicationResponseDTOS;
+    public ApplicationResponseDTO getApplicationById(Long id) {
+        Long currentUserId = 1L;
+        Application app = applicationRepository.findByIdAndUserId(id, currentUserId)
+                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+        return ApplicationResponseDTO.convert(app);
     }
 
     @Override
