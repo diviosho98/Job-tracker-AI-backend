@@ -1,10 +1,11 @@
 package org.example.jobtrackerai.controller;
 
-import org.example.jobtrackerai.ApplicationService.ApplicationService;
+import jakarta.validation.Valid;
+import org.example.jobtrackerai.applicationService.ApplicationService;
 import org.example.jobtrackerai.DTO.ApplicationResponseDTO;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.jobtrackerai.DTO.CreateApplicationDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +19,28 @@ public class ApplicationController {
     }
      @GetMapping("/applications")
      public List<ApplicationResponseDTO> getApplications() {
-         return applicationService.getAllApplication();
+         return applicationService.getApplications();
      }
+
+     @GetMapping("/applications/{id}")
+     public ApplicationResponseDTO getApplicationById(@PathVariable Long id) {
+        return applicationService.getApplicationById(id);
+     }
+
+     @PostMapping("/applications")
+     @ResponseStatus(HttpStatus.CREATED)
+    public ApplicationResponseDTO addApplication(@Valid @RequestBody CreateApplicationDTO createApplicationDTO) {
+        return applicationService.createApplication(createApplicationDTO);
+    }
+
+    @PutMapping("/applications/{id}")
+    public ApplicationResponseDTO updateApplication(@PathVariable Long id, @Valid @RequestBody  CreateApplicationDTO createApplicationDTO) {
+        return applicationService.updateApplication(id, createApplicationDTO);
+    }
+
+    @DeleteMapping("/applications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteApplication(@PathVariable Long id) {
+        applicationService.deleteApplication(id);
+    }
 }
