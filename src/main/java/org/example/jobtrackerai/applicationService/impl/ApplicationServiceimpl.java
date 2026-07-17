@@ -67,8 +67,9 @@ public class ApplicationServiceimpl implements ApplicationService {
 
     @Override
     public void deleteApplication(Long id) {
-        if (applicationRepository.existsById(id)) {
-            applicationRepository.deleteById(id);
-        }
+        Long currentUserId = 1L;
+        Application existing = applicationRepository.findByIdAndUserId(id, currentUserId)
+                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+        applicationRepository.delete(existing);
     }
 }
