@@ -21,6 +21,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(RateLimitException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ErrorResponse handleRateLimit(RateLimitException ex) {
+        return new ErrorResponse(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationError(MethodArgumentNotValidException ex) {
