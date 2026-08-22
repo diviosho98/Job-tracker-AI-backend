@@ -16,13 +16,14 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String company;
 
-    @Column(name="job_role", nullable = false)
+    @Column(name = "job_role", nullable = false)
     private String role;
 
     @Enumerated(EnumType.STRING)

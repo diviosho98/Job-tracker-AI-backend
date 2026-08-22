@@ -2,10 +2,13 @@ package org.example.jobtrackerai.applicationService.impl;
 
 import org.example.jobtrackerai.Model.Application;
 import org.example.jobtrackerai.Model.ApplicationStatus;
+import org.example.jobtrackerai.Model.User;
 import org.example.jobtrackerai.applicationService.ApplicationService;
 import org.example.jobtrackerai.DTO.ApplicationResponseDTO;
 import org.example.jobtrackerai.DTO.CreateApplicationDTO;
+import org.example.jobtrackerai.exception.ResourceNotFoundException;
 import org.example.jobtrackerai.repository.ApplicationRepository;
+import org.example.jobtrackerai.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,14 +16,20 @@ import java.util.List;
 
 @Service
 public class ApplicationServiceimpl implements ApplicationService {
+
     private final ApplicationRepository applicationRepository;
-    public ApplicationServiceimpl(ApplicationRepository applicationRepository) {
+    private final UserRepository userRepository;
+
+    public ApplicationServiceimpl(ApplicationRepository applicationRepository,
+                                  UserRepository userRepository) {
         this.applicationRepository = applicationRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public List<ApplicationResponseDTO> getApplications() {
-        List<Application> response = applicationRepository.findByUserId(1L);
+        User currentUser = getCurrentUser();
+        List<Application> response = applicationRepository.findByUser(currentUser);
         List<ApplicationResponseDTO> applicationResponseDTOS = new ArrayList<>(response.size());
         for (Application application : response) {
             applicationResponseDTOS.add(ApplicationResponseDTO.convert(application));
@@ -30,9 +39,10 @@ public class ApplicationServiceimpl implements ApplicationService {
 
     @Override
     public ApplicationResponseDTO createApplication(CreateApplicationDTO app) {
+        User currentUser = getCurrentUser();
         Application applicationEntity = new Application();
         applicationEntity.setRole(app.role());
-        applicationEntity.setUserId(1L);
+        applicationEntity.setUser(currentUser);
         applicationEntity.setCompany(app.company());
         applicationEntity.setStatus(
                 app.status() != null ? app.status() : ApplicationStatus.APPLIED
@@ -43,33 +53,42 @@ public class ApplicationServiceimpl implements ApplicationService {
 
     @Override
     public ApplicationResponseDTO getApplicationById(Long id) {
-        Long currentUserId = 1L;
-        Application app = applicationRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+        User currentUser = getCurrentUser();
+        Application app = applicationRepository.findByIdAndUser(id, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + id));
         return ApplicationResponseDTO.convert(app);
     }
 
     @Override
     public ApplicationResponseDTO updateApplication(Long id, CreateApplicationDTO app) {
-        Long currentUserId = 1L;   // later: from authenticated session
-
-        Application existing = applicationRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+        User currentUser = getCurrentUser();
+        Application existing = applicationRepository.findByIdAndUser(id, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + id));
 
         existing.setCompany(app.company());
         existing.setRole(app.role());
         existing.setStatus(app.status() != null ? app.status() : existing.getStatus());
 
         Application saved = applicationRepository.save(existing);
-
         return ApplicationResponseDTO.convert(saved);
     }
 
     @Override
     public void deleteApplication(Long id) {
-        Long currentUserId = 1L;
-        Application existing = applicationRepository.findByIdAndUserId(id, currentUserId)
-                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+        User currentUser = getCurrentUser();
+        Application existing = applicationRepository.findByIdAndUser(id, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + id));
         applicationRepository.delete(existing);
+    }
+
+    private User getCurrentUser() {
+        // Temporary: uses a default user until OAuth is implemented in step 3
+        return userRepository.findByEmail("default@jobtracker.dev")
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail("default@jobtracker.dev");
+                    user.setName("Default User");
+                    return userRepository.save(user);
+                });
     }
 }
