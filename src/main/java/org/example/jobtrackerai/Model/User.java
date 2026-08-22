@@ -24,6 +24,16 @@ public class User {
 
     private String profilePicture;
 
+    @Column(length = 2048)
+    private String gmailAccessToken;
+
+    @Column(length = 2048)
+    private String gmailRefreshToken;
+
+    private LocalDateTime tokenExpiresAt;
+
+    private LocalDateTime lastSyncedAt;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

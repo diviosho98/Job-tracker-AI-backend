@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -25,14 +27,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
 
-        userRepository.findByEmail(email)
+        String accessToken = userRequest.getAccessToken().getTokenValue();
+
+        User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setEmail(email);
                     newUser.setName(name);
                     newUser.setProfilePicture(picture);
-                    return userRepository.save(newUser);
+                    return newUser;
                 });
+
+        user.setGmailAccessToken(accessToken);
+        if (userRequest.getAccessToken().getExpiresAt() != null) {
+            user.setTokenExpiresAt(
+                    LocalDateTime.ofInstant(userRequest.getAccessToken().getExpiresAt(),
+                            java.time.ZoneId.systemDefault())
+            );
+        }
+
+        userRepository.save(user);
 
         return oAuth2User;
     }
