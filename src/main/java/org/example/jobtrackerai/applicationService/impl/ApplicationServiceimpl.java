@@ -9,6 +9,8 @@ import org.example.jobtrackerai.DTO.CreateApplicationDTO;
 import org.example.jobtrackerai.exception.ResourceNotFoundException;
 import org.example.jobtrackerai.repository.ApplicationRepository;
 import org.example.jobtrackerai.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -82,13 +84,10 @@ public class ApplicationServiceimpl implements ApplicationService {
     }
 
     private User getCurrentUser() {
-        // Temporary: uses a default user until OAuth is implemented in step 3
-        return userRepository.findByEmail("default@jobtracker.dev")
-                .orElseGet(() -> {
-                    User user = new User();
-                    user.setEmail("default@jobtracker.dev");
-                    user.setName("Default User");
-                    return userRepository.save(user);
-                });
+        OAuth2User oAuth2User = (OAuth2User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        String email = oAuth2User.getAttribute("email");
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }
