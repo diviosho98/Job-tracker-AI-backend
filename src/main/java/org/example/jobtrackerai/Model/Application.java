@@ -30,6 +30,12 @@ public class Application {
     @Column(nullable = false)
     private ApplicationStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApplicationSource source;
+
+    private Double confidence;
+
     @Column(nullable = false)
     private LocalDateTime appliedDate;
 
@@ -40,6 +46,9 @@ public class Application {
     public void onCreate() {
         appliedDate = LocalDateTime.now();
         lastUpdatedAt = LocalDateTime.now();
+        if (source == null) {
+            source = ApplicationSource.MANUAL;
+        }
     }
 
     @PreUpdate

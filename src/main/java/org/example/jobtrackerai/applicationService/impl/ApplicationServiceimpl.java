@@ -1,6 +1,7 @@
 package org.example.jobtrackerai.applicationService.impl;
 
 import org.example.jobtrackerai.Model.Application;
+import org.example.jobtrackerai.Model.ApplicationSource;
 import org.example.jobtrackerai.Model.ApplicationStatus;
 import org.example.jobtrackerai.Model.User;
 import org.example.jobtrackerai.applicationService.ApplicationService;
@@ -46,6 +47,7 @@ public class ApplicationServiceimpl implements ApplicationService {
         applicationEntity.setRole(app.role());
         applicationEntity.setUser(currentUser);
         applicationEntity.setCompany(app.company());
+        applicationEntity.setSource(ApplicationSource.MANUAL);
         applicationEntity.setStatus(
                 app.status() != null ? app.status() : ApplicationStatus.APPLIED
         );
@@ -70,6 +72,7 @@ public class ApplicationServiceimpl implements ApplicationService {
         existing.setCompany(app.company());
         existing.setRole(app.role());
         existing.setStatus(app.status() != null ? app.status() : existing.getStatus());
+        existing.setSource(ApplicationSource.MANUAL);
 
         Application saved = applicationRepository.save(existing);
         return ApplicationResponseDTO.convert(saved);
